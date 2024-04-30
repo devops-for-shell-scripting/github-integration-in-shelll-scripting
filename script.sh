@@ -17,9 +17,21 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
+# Check if response contains an error message
+ERROR=$(echo $RESPONSE | jq -r '.message')
+if [ "$ERROR" != "null" ]; then
+  echo "Error: $ERROR"
+  exit 1
+fi
+
 # Parse response with jq
 USERS=$(echo $RESPONSE | jq -r '.[].login')
 
 # Output users with access
-echo "Users with access to $REPO_OWNER/$REPO_NAME:"
-echo "$USERS"
+if [ -z "$USERS" ]; then
+  echo "No users found with access to $REPO_OWNER/$REPO_NAME."
+else
+  echo "Users with access to $REPO_OWNER/$REPO_NAME:"
+  echo "$USERS"
+fi
+
